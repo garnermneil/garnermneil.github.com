@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Document</title>
+
         <script type="text/javascript">
             const animationDurationInMs = 1000
             const frameDurationPerSecond = 1000 / 60
@@ -48,7 +49,7 @@
 
             const writeNumberToSpans = (el, value) => {
                 const spans = el.getElementsByTagName('span')
-                let strValue = value && value.toString() || ''
+                let strValue = (value && value.toString()) || ''
                 strValue.split('').forEach((digit, idx) => {
                     spans[idx].innerHTML = digit
                 })
@@ -74,14 +75,48 @@
             }
 
             // Run the animation for elements with the appropriate classes
-            const runAnimations = () => {
+            const runAnimationsWithDigits = () => {
                 const countupEls = document.querySelectorAll('.animate-number')
                 countupEls.forEach((el) => animateCountUp(el, getValueFromSpans, writeNumberToSpans))
+            }
+
+            const runAnimationsWithText = () => {
                 const countupNonSpanEls = document.querySelectorAll('.animate-non-span-number')
                 countupNonSpanEls.forEach((el) => animateCountUp(el, getValueFromElement, writeValueToElement))
             }
-
         </script>
+
+        <script type="text/javascript">
+            const setupObserver = () => {
+                if ('IntersectionObserver' in window) {
+                    observe('.first', runAnimationsWithDigits)
+                    observe('.second', runAnimationsWithText)
+                } else {
+                    //IntersectionObserver not supported, mainly IE11 and below, just run the animations
+                    runAnimationsWithDigits()
+                    runAnimationsWithText()
+                }
+            }
+
+            const observe = (elementSelector, animationRunner) => {
+                const sectionOne = document.querySelector(elementSelector)
+                const options = {
+                    // amount of element that has to be visible, 1 is 100%
+                    threshold: 0.25,
+                }
+
+                const observer = new IntersectionObserver(function (entries, observer) {
+                    entries.map((entry) => {
+                        if (entry.isIntersecting) {
+                            animationRunner()
+                        }
+                    })
+                }, options)
+
+                observer.observe(sectionOne)
+            }
+        </script>
+
         <style type="text/css">
             .counter-numbers {
                 -webkit-text-size-adjust: 100%;
@@ -105,36 +140,54 @@
                 line-height: 0.5;
                 margin: 0 3px;
             }
+
+            .some-content, .some-content-small {
+                width: 100%;
+                height: 1500px;
+                background-color: lightgrey;
+            }
+
+            .some-content-small {
+                height: 500px;
+            }
         </style>
     </head>
 
-    <body onLoad="runAnimations()">
-        <div class="co2 cols">
-            <div>
-                <span class="counter-numbers animate-number">
-                    <span>1</span><span>1</span>,<span>0</span><span>4</span><span>0</span>,<span>5</span><span>9</span
-                    ><span>7</span>
-                </span>
-                <p class="lrg">Total Kgs of carbon saved by UKE customers</p>
+    <body onLoad="setupObserver()">
+        <div class="some-content"></div>
+        <div class="first">
+            <div class="co2 cols">
+                <div>
+                    <span class="counter-numbers animate-number">
+                        <span>1</span><span>1</span>,<span>0</span><span>4</span><span>0</span>,<span>5</span
+                        ><span>9</span><span>7</span>
+                    </span>
+                    <p class="lrg">Total Kgs of carbon saved by UKE customers</p>
+                </div>
+            </div>
+            <div class="trees cols">
+                <div>
+                    <span class="counter-numbers animate-number">
+                        <span>5</span>,<span>0</span><span>4</span><span>0</span>
+                    </span>
+                    <p class="lrg">Total number of trees saved by UKE customers</p>
+                </div>
             </div>
         </div>
-        <div class="trees cols">
+        <div class="some-content-small"></div>
+        <div class="second">
             <div>
-                <span class="counter-numbers animate-number">
-                    <span>5</span>,<span>0</span><span>4</span><span>0</span>
-                </span>
-                <p class="lrg">Total number of trees saved by UKE customers</p>
+                <p>
+                    Annual electricity usage for <span><span class="animate-non-span-number">6,857</span></span> homes
+                </p>
+            </div>
+            <div>
+                <p>
+                    <span><span class="animate-non-span-number">100,446,647</span></span> miles travelled every year in
+                    the UK
+                </p>
             </div>
         </div>
-        <div>
-            <p>
-                Annual electricity usage for <span><span class="animate-non-span-number">6,857</span></span> homes
-            </p>
-        </div>
-        <div>
-            <p>
-                <span><span class="animate-non-span-number">100,446,647</span></span> miles travelled every year in the UK
-            </p>
-        </div>
+        <div class="some-content"></div>
     </body>
 </html>
