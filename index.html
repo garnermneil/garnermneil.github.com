@@ -99,7 +99,7 @@
             }
 
             const observe = (elementSelector, animationRunner) => {
-                const sectionOne = document.querySelector(elementSelector)
+                const elementToObserve = document.querySelector(elementSelector)
                 const options = {
                     // amount of element that has to be visible, 1 is 100%
                     threshold: 0.25,
@@ -109,11 +109,13 @@
                     entries.map((entry) => {
                         if (entry.isIntersecting) {
                             animationRunner()
+                            // only run once
+                            observer.unobserve(elementToObserve)
                         }
                     })
                 }, options)
 
-                observer.observe(sectionOne)
+                observer.observe(elementToObserve)
             }
         </script>
 
